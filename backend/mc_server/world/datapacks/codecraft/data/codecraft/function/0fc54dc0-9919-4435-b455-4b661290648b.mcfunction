@@ -1,0 +1,1 @@
+execute store result storage codecraft:var x int 1 run function codecraft:dab99a51-3de9-4536-9c8e-b6421a487c9d

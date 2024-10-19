@@ -21,7 +21,8 @@ fun main(args: Array<String>) {
     println(resultingLocation)
 
     val lexer = Lexer(source)
-    val tokens = lexer.clean(lexer.getAllTokens()).filter { it !is Token.Space }
+    val tokens = lexer.getAllTokens()
+//    println(tokens.withIndex().joinToString { (x, i) -> "${i}: ${x}" })
     val parser = Parser(tokens)
 
     val result = parser.parse()

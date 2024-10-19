@@ -99,6 +99,9 @@ object Generator {
     fun generateStatment(statement: AST.Statement): MC.Program {
         return when(statement) {
             is AST.Statement.StatementAssignment -> generateStatmentAssignment(statement)
+            is AST.Statement.StatementForStatement -> TODO()
+            is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
+            is AST.Statement.StatementWhileStatement -> TODO()
         }
     }
 
@@ -117,6 +120,70 @@ object Generator {
         return MC.Program(
             contents = listOf(cmd),
             functions = listOf(expressionFunction) + expressionProgram.functions
+        )
+    }
+
+    fun generateStatmentIfStatement(statement: AST.Statement.StatementIfStatement): MC.Program {
+        val ifFunctionName = MC.createRandomId()
+        val ifFunctionCmd = MC.createFunctionCall(ifFunctionName)
+
+        val conditionList = listOf(Pair(statement.ifStatement.condition, statement.ifStatement.ifBody))
+
+        val functionList: MutableList<MC.Function> = mutableListOf()
+        val commands: MutableMCCommands = mutableListOf()
+
+        conditionList.forEach { (ifConditionExpression, ifBodyBlock) ->
+            val ifCondition = generateExpression(ifConditionExpression)
+            val ifConditionFunctionName = MC.createRandomId()
+            val ifConditionFunction = MC.Function(
+                name = ifConditionFunctionName,
+                contents = ifCondition.contents
+            )
+
+            functionList.addAll(ifCondition.functions)
+            functionList.add(ifConditionFunction)
+
+            val ifBodyFunctionName = MC.createRandomId()
+            val ifBody = generateBlock(ifBodyBlock)
+            val ifBodyFunction = MC.Function(
+                name = ifBodyFunctionName,
+                contents = ifBody.contents
+            )
+
+            functionList.addAll(ifBody.functions)
+            functionList.add(ifBodyFunction)
+
+            val ifCmd = "execute if ${MC.createFunctionCall(ifConditionFunctionName)} run return run ${MC.createFunctionCall(ifBodyFunctionName)}"
+
+            commands.add(ifCmd)
+        }
+
+        if(statement.ifStatement.elseBody != null) {
+            val elseBodyFunctionName = MC.createRandomId()
+            val elseBody = generateBlock(statement.ifStatement.elseBody)
+            val elseBodyFunction = MC.Function(
+                name = elseBodyFunctionName,
+                contents = elseBody.contents
+            )
+
+            functionList.addAll(elseBody.functions)
+            functionList.add(elseBodyFunction)
+
+            val elseCmd = "return run ${MC.createFunctionCall(elseBodyFunctionName)}"
+
+            commands.add(elseCmd)
+        }
+
+        val ifFunction = MC.Function(
+            name = ifFunctionName,
+            contents = commands
+        )
+
+        functionList.add(ifFunction)
+
+        return MC.Program(
+            contents = listOf(ifFunctionCmd),
+            functions = functionList
         )
     }
 
