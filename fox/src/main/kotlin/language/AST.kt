@@ -13,9 +13,9 @@ object AST {
     sealed class Statement {
         data class StatementAssignment(val assignment: Assignment) : Statement()
 //        data class StatementFuncCall(val assignment: FuncCall) : Statement()
-//        data class StatementIfStatement(val ifStatement: IfStatement) : Statement()
-//        data class StatementWhileStatement(val whileStatement: WhileStatement) : Statement()
-//        data class StatementForStatement(val forStatement: ForStatement) : Statement()
+        data class StatementIfStatement(val ifStatement: IfStatement) : Statement()
+        data class StatementWhileStatement(val whileStatement: WhileStatement) : Statement()
+        data class StatementForStatement(val forStatement: ForStatement) : Statement()
     }
 
     data class IfStatement(val condition: Expression, val ifBody: Block, val elifBodies: List<Block>?, val elseBody: Block?)
