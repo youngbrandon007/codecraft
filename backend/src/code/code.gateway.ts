@@ -9,6 +9,8 @@ import {Server, Socket} from 'socket.io';
 import * as Y from "yjs"
 import * as fs from "fs";
 import { decode, encode } from './converter';
+import { Inject, Injectable } from '@nestjs/common';
+import { VillagerService } from '../villager/villager.service';
 
 const FILE_PATH = "data/run.py"
 
@@ -22,6 +24,9 @@ export class CodeGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
   doc: Y.Doc;
+
+  @ Inject(VillagerService)
+  private readonly villagerService: VillagerService;
 
   constructor() {
     this.doc = new Y.Doc();
@@ -59,5 +64,10 @@ export class CodeGateway implements OnGatewayConnection {
     const content = this.doc.getText().toString() as string;
 
     await fs.promises.writeFile(FILE_PATH, content)
+
+    // stuff
+
+    this.villagerService.reload();
+
   }
 }
