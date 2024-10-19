@@ -1,6 +1,12 @@
 package language
 
-class Lexer(val source: String) {
+class Lexer {
+    private val source: String
+
+    constructor(source: String) {
+        this.source = preprocess(source)
+    }
+
     var index = 0
 
     interface SingleLexer {
@@ -150,8 +156,39 @@ class Lexer(val source: String) {
         throw Exception("CAN'T HAPPEN!")
     }
 
+    fun fix(tokens: List<Token>): List<Token> {
+        val result = mutableListOf<Token>()
+        var currentIndentLevel = 0
+        tokens.forEach { token ->
+            when (token) {
+                is Token.Tabs -> {
+                    val diff = token.indents - currentIndentLevel
+                    if (diff > 0) {
+                        for (i in 1..diff) {
+                            result.add(Token.Indent)
+                        }
+                    } else if (diff < 0) {
+                        for (i in 1..-diff) {
+                            result.add(Token.Dedent)
+                        }
+                    }
+                    currentIndentLevel = token.indents
+                }
+                is Token.Space -> {}
+                else -> result.add(token)
+            }
+        }
+        return result
+    }
+
     fun hasNext(): Boolean {
         return index < source.length
+    }
+
+    fun preprocess(source: String) : String {
+        return source.split("\n").filter {
+            !(it.all { it == ' ' })
+        }.joinToString("\n")
     }
 
     fun getAllTokens(): List<Token> {
@@ -159,20 +196,6 @@ class Lexer(val source: String) {
         while (hasNext()) {
             tokens.add(getOneToken())
         }
-        return tokens
-    }
-
-    fun clean(tokens: List<Token>) : List<Token> {
-        val newTokens = tokens.toMutableList()
-        var index = 0
-        while (index < newTokens.size - 1) {
-            if (newTokens[index] is Token.Tabs && newTokens[index + 1] is Token.Tabs) {
-                newTokens.removeAt(index)
-                newTokens.removeAt(index)
-                index -= 1
-            }
-            index += 1
-        }
-        return newTokens
+        return fix(tokens)
     }
 }

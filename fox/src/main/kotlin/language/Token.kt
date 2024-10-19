@@ -5,6 +5,8 @@ import java.math.BigInteger
 sealed class Token {
     object LeftParens : Token()
     object RightParens : Token()
+    object Indent : Token()
+    object Dedent : Token()
     object Colon : Token()
     object Comma : Token()
     object IfKeyword : Token()
