@@ -55,7 +55,7 @@ function run() {
 
 <template>
   <div class="flex flex-col">
-    <div class="flex flex-row p-2 gap-2 bg-neutral-900 border-b-neutral-700 border-b">
+    <div class="flex flex-row p-2 gap-2 border-b-neutral-700 border-b">
       <div class="grow"></div>
       <button @click="run" type="button" class="rounded-md bg-green-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">Run</button>
     </div>
