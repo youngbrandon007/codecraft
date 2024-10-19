@@ -5,7 +5,7 @@ import {CodeModule} from "./code/code.module";
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
-  imports: [VillagerModule, CodeModule, ServeStaticModule.forRoot({
+  imports: [CodeModule, ServeStaticModule.forRoot({
     rootPath: "./../frontend/dist",
   })],
   controllers: [],
