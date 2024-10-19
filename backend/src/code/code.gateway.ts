@@ -7,10 +7,10 @@ import {
 } from "@nestjs/websockets";
 import {Server, Socket} from 'socket.io';
 import * as Y from "yjs"
-import * as fs from "fs";
+import * as fs from "fs"
 import { decode, encode } from './converter';
-import { Inject, Injectable } from '@nestjs/common';
 import { VillagerService } from '../villager/villager.service';
+import * as console from 'node:console';
 
 const FILE_PATH = "data/run.py"
 
@@ -24,10 +24,7 @@ export class CodeGateway implements OnGatewayConnection {
   server: Server;
   doc: Y.Doc;
 
-  @ Inject(VillagerService)
-  private readonly villagerService: VillagerService;
-
-  constructor() {
+  constructor(private villagerService:VillagerService) {
     this.doc = new Y.Doc();
     const text = this.doc.getText();
 
