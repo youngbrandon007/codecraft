@@ -7,8 +7,8 @@ import {
 } from "@nestjs/websockets";
 import {Server, Socket} from 'socket.io';
 import * as Y from "yjs"
-import {encode, decode} from 'uint8-to-base64';
 import * as fs from "fs";
+import { decode, encode } from './converter';
 
 const FILE_PATH = "data/run.py"
 

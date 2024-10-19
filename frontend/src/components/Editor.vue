@@ -3,9 +3,9 @@ import {onMounted, ref, type Ref} from "vue";
 import * as monaco from "@/lib/monaco";
 import {MonacoBinding} from "y-monaco";
 import * as Y from "yjs"
-import {io} from "socket.io-client";
+import {io, Socket} from "socket.io-client";
 import {serverUrl} from "@/lib/connection";
-import {encode, decode} from 'uint8-to-base64';
+import {decode, encode} from "@/lib/converter";
 
 const editorElementRef: Ref<HTMLDivElement | null> = ref(null)
 
@@ -24,14 +24,14 @@ onMounted( () => {
     console.log("Disconnected")
   })
 
-  socket.on("update", (str) => {
+  socket.on("update", (str: string) => {
     const update = decode(str)
 
     Y.applyUpdate(doc, update)
   })
 
   doc.on("update", (update) => {
-    socket.emit("update", encode(update))
+    socket!.emit("update", encode(update))
   })
 
   setTimeout(async () => {
@@ -61,5 +61,5 @@ function run() {
     </div>
     <div ref="editorElementRef" class="w-full grow"></div>
   </div>
-
 </template>
+

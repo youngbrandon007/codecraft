@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { VillagerModule } from './villager/villager.module';
 
 import {CodeModule} from "./code/code.module";
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
-  imports: [VillagerModule, CodeModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [VillagerModule, CodeModule, ServeStaticModule.forRoot({
+    rootPath: "./../frontend/dist",
+  })],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
