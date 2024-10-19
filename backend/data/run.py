@@ -1,1 +1,2 @@
-banana
+def test():
+    x = 2
