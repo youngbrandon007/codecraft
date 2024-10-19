@@ -17,10 +17,14 @@ export class VillagerService implements OnApplicationBootstrap {
   onApplicationBootstrap(): any {
     this.server = exec('java -jar server.jar', { cwd: "mc_server" },
       (error, stdout, stderr) => {
-      });
+    });
 
     this.server.stdout.on('data', (data) => {
       console.log(data);
+    })
+
+    this.server.stderr.on('data', (data) => {
+      console.error(data);
     })
   }
 }
