@@ -26,6 +26,7 @@
     "@nestjs/platform-socket.io": "^10.4.5",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/websockets": "^10.4.5",
+    "fs-extra": "^11.2.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.0",

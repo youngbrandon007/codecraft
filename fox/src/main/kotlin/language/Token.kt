@@ -9,6 +9,7 @@ sealed class Token {
     object Dedent : Token()
     object Colon : Token()
     object Comma : Token()
+    object Quote : Token()
     object IfKeyword : Token()
     object ElifKeyword : Token()
     object ElseKeyword : Token()

@@ -1,1 +1,0 @@
-$tellraw @a {"storage":"minecraft:var","nbt":"$(name)"}
