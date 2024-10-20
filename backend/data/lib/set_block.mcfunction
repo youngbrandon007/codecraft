@@ -1,1 +1,1 @@
-$setblock $(p0) $(p1) $(p2) minecraft:red_wool
+$setblock $(p0) $(p1) $(p2) $(p3)

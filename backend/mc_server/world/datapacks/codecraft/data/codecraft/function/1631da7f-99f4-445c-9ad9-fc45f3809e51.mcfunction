@@ -1,1 +1,0 @@
-return run data get storage codecraft:var rr 1.0

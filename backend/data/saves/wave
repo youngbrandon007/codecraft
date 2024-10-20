@@ -1,0 +1,26 @@
+
+i = 0
+r = 20
+rr = r * 2
+
+
+
+def wave():
+    x = i % rr
+    y = (i / rr) % rr
+
+    dx = x - r
+    dy = y - r
+
+    val = (dx + dy) % 8
+
+    if val >= 4:
+        val = 8 - val
+
+    set_block(dx, val, dy, "minecraft:blue_wool")
+
+
+def tick():
+    wave()
+
+    i = i + 1

@@ -1,3 +1,0 @@
-execute store result storage codecraft:e19915bd-f8bb-4e5f-80b0-6a62bfb2c7ec p0 int 1.0 run function codecraft:fc3e88f2-98ee-4d0f-8f42-e3c9c1f88e0a
-execute store result storage codecraft:e19915bd-f8bb-4e5f-80b0-6a62bfb2c7ec p1 int 1.0 run function codecraft:c92e427a-ddbb-44f6-bd6e-4f15927600e9
-return run function codecraft:greater_than_equal with storage codecraft:e19915bd-f8bb-4e5f-80b0-6a62bfb2c7ec

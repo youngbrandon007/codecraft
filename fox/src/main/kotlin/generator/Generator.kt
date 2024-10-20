@@ -1,10 +1,7 @@
 package generator
 
 import language.AST
-<<<<<<< Updated upstream
-=======
 import java.math.BigInteger
->>>>>>> Stashed changes
 import java.util.UUID
 import kotlin.math.exp
 
@@ -122,14 +119,9 @@ object Generator {
             is AST.Statement.StatementAssignment -> generateStatmentAssignment(statement)
             is AST.Statement.StatementForStatement -> generateStatementForStatement(statement)
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
-<<<<<<< Updated upstream
-            is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
-            is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment)
-            is AST.Statement.StatementReturn -> TODO()
-=======
             is AST.Statement.StatementWhileStatement -> generateStatementWhileStatement(statement)
             is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment, false)
->>>>>>> Stashed changes
+            is AST.Statement.StatementReturn -> generateStatementReturn(statement)
         }
     }
 
@@ -293,11 +285,7 @@ object Generator {
             is AST.Expression.ExpressionIdentifier -> generateExpressionIdentifier(expression)
             is AST.Expression.ExpressionParens -> generateExpressionParens(expression)
             is AST.Expression.ExpressionString -> TODO()
-<<<<<<< Updated upstream
-            is AST.Expression.ExpressionOperatorCall -> TODO()
-=======
             is AST.Expression.ExpressionOperatorCall -> generateExpressionOperatorCall(expression) //!@#$%^&*==<>
->>>>>>> Stashed changes
         }
     }
 
@@ -329,18 +317,26 @@ object Generator {
         val commands: MutableMCCommands = mutableListOf()
 
         functionCall.parameters.forEachIndexed { i, paramExpression ->
-            val param = generateExpression(paramExpression)
-            val paramFunctionName = MC.createRandomId()
-            val paramFunction = MC.Function(
-                name = paramFunctionName,
-                contents = param.contents
-            )
-            functionList.add(paramFunction)
-            functionList.addAll(param.functions)
 
-            val paramCmd = "execute store result storage codecraft:${funcCallParamUuid} p${i} int 1.0 run ${MC.createFunctionCall(paramFunctionName)}"
+            if(paramExpression is AST.Expression.ExpressionString) {
+                val paramCmd = "data modify storage codecraft:${funcCallParamUuid} p${i} set value \"${paramExpression.value}\""
 
-            commands.add(paramCmd)
+                commands.add(paramCmd)
+            }else{
+                val param = generateExpression(paramExpression)
+                val paramFunctionName = MC.createRandomId()
+                val paramFunction = MC.Function(
+                    name = paramFunctionName,
+                    contents = param.contents
+                )
+                functionList.add(paramFunction)
+                functionList.addAll(param.functions)
+
+                val paramCmd = "execute store result storage codecraft:${funcCallParamUuid} p${i} int 1.0 run ${MC.createFunctionCall(paramFunctionName)}"
+
+                commands.add(paramCmd)
+            }
+
         }
         val funcCallCmd = (when(isExpression) { true -> "return run "; false -> "" }) + "${MC.createFunctionCall(functionCall.funcName)} with storage codecraft:${funcCallParamUuid}"
 
@@ -370,6 +366,22 @@ object Generator {
             "||" -> AST.FuncCall("or", params)
             else -> TODO()
         }, true)
+    }
+
+    fun generateStatementReturn(statementReturn: AST.Statement.StatementReturn): MC.Program {
+        val expression = generateExpression(statementReturn.expression)
+        val expressionFunctionName = MC.createRandomId()
+        val expressionFunction = MC.Function(
+            name = expressionFunctionName,
+            contents = expression.contents
+        )
+
+        val cmd = "return run ${MC.createFunctionCall(expressionFunctionName)}"
+
+        return MC.Program(
+            contents = listOf(cmd),
+            functions = expression.functions + listOf(expressionFunction)
+        )
     }
 }
 
