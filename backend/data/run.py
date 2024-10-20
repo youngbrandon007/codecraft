@@ -1,1 +1,3 @@
-banana
+def test():
+    if 1:
+        x = 26

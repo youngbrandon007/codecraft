@@ -10,8 +10,8 @@ import * as Y from "yjs"
 import * as fs from "fs"
 import { decode, encode } from './converter';
 import { VillagerService } from '../villager/villager.service';
+import { exec } from 'child_process';
 import * as console from 'node:console';
-
 const FILE_PATH = "data/run.py"
 
 @WebSocketGateway({
@@ -59,11 +59,16 @@ export class CodeGateway implements OnGatewayConnection {
 
     const content = this.doc.getText().toString() as string;
 
-    await fs.promises.writeFile(FILE_PATH, content)
+    fs.promises.writeFile(FILE_PATH, content).then(() => {
+      const datapacker = exec('java -jar ../fox/out/artifacts/naq_jar/naq.jar data/run.py mc_server/world/datapacks/codecraft/data/codecraft/function')
 
-    // stuff
+      datapacker.stderr.on('data', (data) => {console.log(data)})
 
-    this.villagerService.reload();
+      datapacker.on("close", (code) => {
+        console.log(`Datapacker closed with code ${code}`)
 
+        this.villagerService.reload();
+      })
+    })
   }
 }
