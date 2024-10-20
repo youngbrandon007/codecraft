@@ -60,15 +60,15 @@ export class CodeGateway implements OnGatewayConnection {
     const content = this.doc.getText().toString() as string;
 
     fs.promises.writeFile(FILE_PATH, content).then(() => {
-      const datapacker = exec('java -jar data/naq.jar data/run.py mc_server/world/datapacks/data/codecraft/function')
+      const datapacker = exec('java -jar ../fox/out/artifacts/naq_jar/naq.jar data/run.py mc_server/world/datapacks/codecraft/data/codecraft/function')
 
-      datapacker.stdout.on('data', (data) => {console.log(data)})
+      datapacker.stderr.on('data', (data) => {console.log(data)})
 
       datapacker.on("close", (code) => {
         console.log(`Datapacker closed with code ${code}`)
-      })
 
-      this.villagerService.reload();
+        this.villagerService.reload();
+      })
     })
   }
 }

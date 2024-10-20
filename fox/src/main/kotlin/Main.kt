@@ -1,8 +1,7 @@
-//import generator.Generator
+
 import generator.Generator
 import language.Lexer
 import language.Parser
-import language.Token
 import java.io.File
 import java.nio.file.Path
 

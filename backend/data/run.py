@@ -1,3 +1,3 @@
 def test():
-    if 0:
-        x = 20
+    if 1:
+        x = 26

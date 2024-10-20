@@ -11,7 +11,7 @@ export class VillagerService implements OnApplicationBootstrap {
   }
 
   reload() {
-    this.runCommand("/reload");
+    this.runCommand("reload\n");
   }
 
   onApplicationBootstrap(): any {
