@@ -1,5 +1,8 @@
 
+def test():
 
-def p(x):
-    print(x)
+    x = 20
+    y = 25
+    z = add(x, y)
 
+    print(z)
