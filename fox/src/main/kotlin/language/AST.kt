@@ -16,6 +16,7 @@ object AST {
         data class StatementIfStatement(val ifStatement: IfStatement) : Statement()
         data class StatementWhileStatement(val whileStatement: WhileStatement) : Statement()
         data class StatementForStatement(val forStatement: ForStatement) : Statement()
+        data class StatementReturn(val expression: Expression) : Statement()
     }
 
     data class IfStatement(val condition: Expression, val ifBody: Block, val elifs: List<Pair<Expression, Block>>, val elseBody: Block?)

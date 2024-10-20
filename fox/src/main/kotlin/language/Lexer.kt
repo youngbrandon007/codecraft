@@ -41,7 +41,7 @@ class Lexer {
 
     class OperatorLexer : SingleLexer {
         override fun tryGetOneToken(source: String, index: Int): SingleLexResult? {
-            val s = "!@#$%^&*/=+-.<>|~"
+            val s = "!@$%^&*/=+-.<>|~"
             var endIndex = index
             while (endIndex < source.length && source[endIndex] in s) {
                 endIndex += 1
@@ -133,6 +133,20 @@ class Lexer {
         }
     }
 
+    class CommentLexer : SingleLexer {
+        override fun tryGetOneToken(source: String, index: Int): SingleLexResult? {
+            if (source[index] == '#') {
+                var endIndex = index + 1
+                while (endIndex < source.length && source[endIndex] != '\n') {
+                    endIndex += 1
+                }
+                return SingleLexResult(Token.Comment(source.substring(index + 1, endIndex)), endIndex)
+            } else {
+                return null
+            }
+        }
+    }
+
     class CatchAllLexer : SingleLexer {
         override fun tryGetOneToken(source: String, index: Int): SingleLexResult {
             return SingleLexResult(Token.Unknown(source.substring(index, source.length)), source.length)
@@ -160,6 +174,7 @@ class Lexer {
         NumberLexer(),
         SpaceLexer(),
         StringLexer(),
+        CommentLexer(),
         CatchAllLexer(),
     )
 
@@ -193,6 +208,7 @@ class Lexer {
                     currentIndentLevel = token.indents
                 }
                 is Token.Space -> {}
+                is Token.Comment -> {}
                 else -> result.add(token)
             }
         }

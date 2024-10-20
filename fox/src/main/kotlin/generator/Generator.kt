@@ -1,5 +1,6 @@
 package generator
 
+import language.AST
 import java.util.UUID
 
 typealias MutableMCCommands = MutableList<String>
@@ -118,6 +119,7 @@ object Generator {
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
             is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
             is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment)
+            is AST.Statement.StatementReturn -> TODO()
         }
     }
 
@@ -243,6 +245,7 @@ object Generator {
             is AST.Expression.ExpressionIdentifier -> generateExpressionIdentifier(expression)
             is AST.Expression.ExpressionParens -> generateExpressionParens(expression)
             is AST.Expression.ExpressionString -> TODO()
+            is AST.Expression.ExpressionOperatorCall -> TODO()
         }
     }
 

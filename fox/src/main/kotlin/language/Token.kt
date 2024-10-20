@@ -26,5 +26,6 @@ sealed class Token {
     data class Number(val n: BigInteger) : Token()
     data class Space(val num: Int) : Token()
     data class StringToken(val string: String) : Token()
+    data class Comment(val comment: String) : Token()
     data class Unknown(val content: String) : Token()
 }

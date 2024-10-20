@@ -5,8 +5,22 @@ import java.io.File
 import java.nio.file.Path
 
 var source =
-"""def test():
-    x = 2"""
+"""
+    t = 0
+    def loop():
+        t = t + 1
+        draw_circle()
+        
+    def draw_circle():
+        for x in range(50):
+            for y in range(50):
+                for z in range(50):
+                    sq_dist = ((x - 25) * (x - 25)) + ((y - 25) * (y - 25)) + ((z - 25) * (z - 25))
+                    if sq_dist <= t * t:
+                        set_block(x, y, z, "minecraft:diamond_block")
+                    else:
+                        set_block(x, y, z, "minecraft:air")
+""".trimIndent()
 fun main(args: Array<String>) {
     val sourceLocation = args.getOrNull(0)
     val resultingLocation = args.getOrNull(1) ?: "./"

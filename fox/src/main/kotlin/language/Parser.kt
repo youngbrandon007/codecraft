@@ -186,6 +186,13 @@ class Parser(val tokens: List<Token>) {
                     is ParseResult.Failure -> retype(fors)
                 }
             }
+            is Token.ReturnKeyword -> {
+                skip()
+                return when (val expr = parseExpression()) {
+                    is ParseResult.Success -> ParseResult.Success(AST.Statement.StatementReturn(expr.t))
+                    is ParseResult.Failure -> retype(expr)
+                }
+            }
             else -> {
                 if (index + 1 < tokens.size && tokens[index] is Token.Identifier && tokens[index + 1] == Token.ExpressionOperator("=")) {
                     val name = (consumeToken() as Token.Identifier).name
