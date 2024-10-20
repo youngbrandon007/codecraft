@@ -12,7 +12,7 @@ object AST {
 
     sealed class Statement {
         data class StatementAssignment(val assignment: Assignment) : Statement()
-//        data class StatementFuncCall(val assignment: FuncCall) : Statement()
+        data class StatementFuncCall(val assignment: FuncCall) : Statement()
         data class StatementIfStatement(val ifStatement: IfStatement) : Statement()
         data class StatementWhileStatement(val whileStatement: WhileStatement) : Statement()
         data class StatementForStatement(val forStatement: ForStatement) : Statement()
@@ -33,13 +33,14 @@ object AST {
     data class Assignment(val name: String, val expressions: Expression)
 
     sealed class Expression {
-//        data class ExpressionParens(val inner: Expression): Expression()
-//        data class ExpressionFuncCall(val call: FuncCall): Expression()
+        data class ExpressionParens(val inner: Expression): Expression()
+        data class ExpressionFuncCall(val call: FuncCall): Expression()
 //        data class ExpressionOperatorCall(val operator: String, val first: Expression, val second: Expression): Expression()
 //        data class ExpressionDotCallParams(val target: Expression, val name: String, val parameters: List<Expression>): Expression()
 //        data class ExpressionDotCall(val target: Expression, val name: String): Expression()
         data class ExpressionNumber(val value: BigInteger): Expression()
-//        data class ExpressionString(val value: BigInteger): Expression()
+        data class ExpressionIdentifier(val name: String): Expression()
+        data class ExpressionString(val value: BigInteger): Expression()
     }
 }
 
