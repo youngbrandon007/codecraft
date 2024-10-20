@@ -60,7 +60,7 @@ export class CodeGateway implements OnGatewayConnection {
         const content = this.doc.getText().toString() as string;
 
         this.villagerService.purgeFunctionFolder();
-        this.villagerService.copyLibs();
+        await this.villagerService.copyLibs();
 
         fs.promises.writeFile(FILE_PATH, content).then(() => {
             const dataPacker = exec('java -jar ../fox/out/artifacts/naq_jar/naq.jar data/run.py mc_server/world/datapacks/codecraft/data/codecraft/function')

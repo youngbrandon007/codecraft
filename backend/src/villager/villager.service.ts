@@ -32,15 +32,15 @@ export class VillagerService implements OnApplicationBootstrap {
     purgeFunctionFolder() {
         fsExtra.emptyDirSync('mc_server/world/datapacks/codecraft/data/codecraft/function',
             (err) => {
-                if (err) return this.log(err);
+                if (err) return this.log(`ERROR - ${err}`);
                 this.log("Successfully purged old functions.");
             });
     }
 
-    copyLibs() {
-        fsExtra.copySync('data/lib','mc_server/world/datapacks/codecraft/data/codecraft/function',
+    async copyLibs() {
+        fsExtra.copy('data/lib','mc_server/world/datapacks/codecraft/data/codecraft/function',
             (err) => {
-                if (err) return this.log(err);
+                if (err) return this.log(`ERROR - ${err}`);
                 this.log("Successfully copied libs.");
             });
     }
@@ -50,7 +50,7 @@ export class VillagerService implements OnApplicationBootstrap {
         const timestamp = new Date();
         const formatted_timestamp = timestamp.toLocaleTimeString('en-US',{'hour12':false});
 
-        console.log(`[${formatted_timestamp}] [Villager]: ${msg}]`)
+        console.log(`[${formatted_timestamp}] [Villager]: ${msg}`)
         console.log()
     }
 }
