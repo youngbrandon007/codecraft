@@ -6,6 +6,7 @@ import * as Y from "yjs"
 import {io, Socket} from "socket.io-client";
 import {serverUrl} from "@/lib/connection";
 import {decode, encode} from "@/lib/converter";
+import Monaco from '@/lib/monaco';
 
 const editorElementRef: Ref<HTMLDivElement | null> = ref(null)
 
@@ -42,6 +43,8 @@ onMounted( () => {
       language: 'python',
       theme: 'vs-dark',
     })
+
+    monacoEditor.getModel()?.setEOL(Monaco.editor.EndOfLineSequence.LF)
 
     const text = doc.getText()
     new MonacoBinding(text, monacoEditor.getModel()!)

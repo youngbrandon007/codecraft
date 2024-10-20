@@ -9,12 +9,12 @@ typealias MCCommands = List<String>
 
 object MC {
 
-    data class Function (
+    data class Function(
         val name: String,
         val contents: MCCommands = emptyList(),
     )
 
-    data class Program (
+    data class Program(
         val contents: MCCommands = emptyList(),
         val functions: List<Function> = emptyList(),
     )
@@ -45,10 +45,12 @@ object Generator {
             functions.addAll(lineProgram.functions)
         }
 
-        if(functions.none { it.name == "tick" }){
-            functions.add(MC.Function(
-                name = "tick"
-            ))
+        if (functions.none { it.name == "tick" }) {
+            functions.add(
+                MC.Function(
+                    name = "tick"
+                )
+            )
         }
 
         val loadFunction = MC.Function(
@@ -62,7 +64,7 @@ object Generator {
     }
 
     fun generateProgramElement(programElement: AST.ProgramElement): MC.Program {
-        return when(programElement) {
+        return when (programElement) {
             is AST.ProgramElement.ProgramStatement -> generateProgramStatement(programElement)
             is AST.ProgramElement.ProgramFuncDef -> generateProgramFuncDef(programElement)
         }
@@ -103,23 +105,27 @@ object Generator {
     }
 
     fun generateStatment(statement: AST.Statement): MC.Program {
-        return when(statement) {
+        return when (statement) {
             is AST.Statement.StatementAssignment -> generateStatmentAssignment(statement)
             is AST.Statement.StatementForStatement -> TODO()
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
             is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
-            is AST.Statement.StatementFuncCall -> TODO()
+            is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment)
         }
     }
 
     fun generateStatmentAssignment(statementAssignment: AST.Statement.StatementAssignment): MC.Program {
         val functionName = MC.createRandomId()
 
-        val cmd = "execute store result storage ${MC.storageResourceLocation} ${statementAssignment.assignment.name} int 1 run ${MC.createFunctionCall(functionName)}"
+        val cmd =
+            "execute store result storage ${MC.storageResourceLocation} ${statementAssignment.assignment.name} int 1 run ${
+                MC.createFunctionCall(functionName)
+            }"
 
         val expressionProgram = generateExpression(statementAssignment.assignment.expressions)
 
-        val expressionFunction = MC.Function( name = functionName, contents = expressionProgram.contents,
+        val expressionFunction = MC.Function(
+            name = functionName, contents = expressionProgram.contents,
         )
 
         return MC.Program(
@@ -149,7 +155,10 @@ object Generator {
         )
 
         return MC.Program(
-            functions = whileCondition.functions + whileBody.functions + listOf(whileConditionFunction, whileBodyFunction),
+            functions = whileCondition.functions + whileBody.functions + listOf(
+                whileConditionFunction,
+                whileBodyFunction
+            ),
             contents = listOf(whileBodyCmd)
         )
     }
@@ -184,12 +193,14 @@ object Generator {
             functionList.addAll(ifBody.functions)
             functionList.add(ifBodyFunction)
 
-            val ifCmd = "execute if ${MC.createFunctionCall(ifConditionFunctionName)} run return run ${MC.createFunctionCall(ifBodyFunctionName)}"
+            val ifCmd = "execute if ${MC.createFunctionCall(ifConditionFunctionName)} run return run ${
+                MC.createFunctionCall(ifBodyFunctionName)
+            }"
 
             commands.add(ifCmd)
         }
 
-        if(statement.ifStatement.elseBody != null) {
+        if (statement.ifStatement.elseBody != null) {
             val elseBodyFunctionName = MC.createRandomId()
             val elseBody = generateBlock(statement.ifStatement.elseBody)
             val elseBodyFunction = MC.Function(
@@ -219,10 +230,10 @@ object Generator {
     }
 
     fun generateExpression(expression: AST.Expression): MC.Program {
-        return when(expression) {
+        return when (expression) {
             is AST.Expression.ExpressionNumber -> generateExpressionNumber(expression)
-            is AST.Expression.ExpressionFuncCall -> TODO() // generateExpressionFunctionCall(expression)
-            is AST.Expression.ExpressionIdentifier -> TODO()
+            is AST.Expression.ExpressionFuncCall -> generateExpressionFunctionCall(expression.call)
+            is AST.Expression.ExpressionIdentifier -> generateExpressionIdentifier(expression)
             is AST.Expression.ExpressionParens -> generateExpressionParens(expression)
             is AST.Expression.ExpressionString -> TODO()
         }
@@ -236,16 +247,46 @@ object Generator {
         )
     }
 
+    fun generateExpressionIdentifier(expressionIdentifier: AST.Expression.ExpressionIdentifier): MC.Program {
+        val returnCmd = "return run data get storage ${MC.storageResourceLocation} ${expressionIdentifier.name} 1.0"
+
+        return MC.Program(
+            contents = listOf(returnCmd)
+        )
+    }
+
     fun generateExpressionParens(parenExpression: AST.Expression.ExpressionParens): MC.Program {
         return generateExpression(parenExpression.inner)
     }
 
-     // Waiting for Erik to add Parameters
-    fun generateExpressionFunctionCall(functionCall: AST.Expression.ExpressionFuncCall): MC.Program {
-        val funcCallCmd = "return run ${MC.createFunctionCall(functionCall.call.funcName)}"
+    // Waiting for Erik to add Parameters
+    fun generateExpressionFunctionCall(functionCall: AST.FuncCall): MC.Program {
+        val funcCallParamUuid = MC.createRandomId()
+
+        val functionList: MutableList<MC.Function> = mutableListOf()
+        val commands: MutableMCCommands = mutableListOf()
+
+        functionCall.parameters.forEachIndexed { i, paramExpression ->
+            val param = generateExpression(paramExpression)
+            val paramFunctionName = MC.createRandomId()
+            val paramFunction = MC.Function(
+                name = paramFunctionName,
+                contents = param.contents
+            )
+            functionList.add(paramFunction)
+            functionList.addAll(param.functions)
+
+            val paramCmd = "execute store result storage codecraft:${funcCallParamUuid} p${i} int 1.0 run ${MC.createFunctionCall(paramFunctionName)}"
+
+            commands.add(paramCmd)
+        }
+        val funcCallCmd = "return run ${MC.createFunctionCall(functionCall.funcName)} with storage codecraft:${funcCallParamUuid}"
+
+        commands.add(funcCallCmd)
 
         return MC.Program(
-            contents = listOf(funcCallCmd)
+            contents = commands,
+            functions = functionList
         )
     }
 }
