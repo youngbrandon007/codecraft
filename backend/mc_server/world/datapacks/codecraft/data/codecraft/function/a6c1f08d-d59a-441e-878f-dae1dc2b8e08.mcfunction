@@ -1,2 +1,0 @@
-data modify storage codecraft:69274365-b763-4f23-97e5-bd48abe00276 p0 set value "data get entity @p Pos[0] 1"
-return run function codecraft:exec with storage codecraft:69274365-b763-4f23-97e5-bd48abe00276
