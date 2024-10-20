@@ -5,6 +5,9 @@ import java.math.BigInteger
 sealed class Token {
     object LeftParens : Token()
     object RightParens : Token()
+    object And : Token()
+    object Or : Token()
+    object Not : Token()
     object Indent : Token()
     object Dedent : Token()
     object Colon : Token()
@@ -21,6 +24,7 @@ sealed class Token {
     data class Identifier(val name: String) : Token()
     data class Tabs(val indents: Int) : Token()
     data class Number(val n: BigInteger) : Token()
-    data class Unknown(val content: String) : Token()
     data class Space(val num: Int) : Token()
+    data class StringToken(val string: String) : Token()
+    data class Unknown(val content: String) : Token()
 }

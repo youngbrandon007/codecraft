@@ -1,6 +1,5 @@
 package generator
 
-import language.AST
 import java.util.UUID
 
 typealias MutableMCCommands = MutableList<String>

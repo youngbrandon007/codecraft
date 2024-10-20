@@ -18,9 +18,9 @@ object AST {
         data class StatementForStatement(val forStatement: ForStatement) : Statement()
     }
 
-    data class IfStatement(val condition: Expression, val ifBody: Block, val elifBodies: List<Block>?, val elseBody: Block?)
+    data class IfStatement(val condition: Expression, val ifBody: Block, val elifs: List<Pair<Expression, Block>>, val elseBody: Block?)
     data class WhileStatement(val condition: Expression, val body: Block)
-    data class ForStatement(val varName: String, val iterator: Expression, val body: Block)
+    data class ForStatement(val varName: String, val range: Pair<BigInteger, BigInteger>, val body: Block)
 
     data class Block(val statements: List<Statement>)
 
@@ -35,12 +35,12 @@ object AST {
     sealed class Expression {
         data class ExpressionParens(val inner: Expression): Expression()
         data class ExpressionFuncCall(val call: FuncCall): Expression()
-//        data class ExpressionOperatorCall(val operator: String, val first: Expression, val second: Expression): Expression()
+        data class ExpressionOperatorCall(val operator: String, val first: Expression, val second: Expression): Expression()
 //        data class ExpressionDotCallParams(val target: Expression, val name: String, val parameters: List<Expression>): Expression()
 //        data class ExpressionDotCall(val target: Expression, val name: String): Expression()
         data class ExpressionNumber(val value: BigInteger): Expression()
         data class ExpressionIdentifier(val name: String): Expression()
-        data class ExpressionString(val value: BigInteger): Expression()
+        data class ExpressionString(val value: String): Expression()
     }
 }
 

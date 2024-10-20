@@ -1,5 +1,7 @@
 package language
 
+import java.math.BigInteger
+
 class Parser(val tokens: List<Token>) {
     var index = 0
 
@@ -88,7 +90,32 @@ class Parser(val tokens: List<Token>) {
             is ParseResult.Success -> body.t
             is ParseResult.Failure -> return retype(body)
         }
-        return ParseResult.Success(AST.IfStatement(condition, body, null, null))
+        val elifs = mutableListOf<Pair<AST.Expression, AST.Block>>()
+        while (hasNext() && currentToken() == Token.ElifKeyword) {
+            skip()
+            val condition = when (val condition = parseExpression()) {
+                is ParseResult.Success -> condition.t
+                is ParseResult.Failure -> return retype(condition)
+            }
+            skip()
+            val body = when (val body = parseBlock()) {
+                is ParseResult.Success -> body.t
+                is ParseResult.Failure -> return retype(body)
+            }
+            elifs.add(Pair(condition, body))
+        }
+        val elseBody =
+            if (hasNext() && currentToken() == Token.ElseKeyword) {
+                skip()
+                skip()
+                when (val body = parseBlock()) {
+                    is ParseResult.Success -> body.t
+                    is ParseResult.Failure -> return retype(body)
+                }
+            } else {
+                null
+            }
+        return ParseResult.Success(AST.IfStatement(condition, body, elifs, elseBody))
     }
 
     private fun parseWhileStatement(): ParseResult<AST.WhileStatement> {
@@ -116,12 +143,26 @@ class Parser(val tokens: List<Token>) {
             is ParseResult.Success -> iterator.t
             is ParseResult.Failure -> return retype(iterator)
         }
+        val range: Pair<BigInteger, BigInteger> = when (iterator) {
+            is AST.Expression.ExpressionFuncCall -> {
+                if (iterator.call.parameters.size == 1) {
+                    Pair(BigInteger.ZERO, (iterator.call.parameters[0] as AST.Expression.ExpressionNumber).value)
+                } else if (iterator.call.parameters.size == 2) {
+                    Pair((iterator.call.parameters[0] as AST.Expression.ExpressionNumber).value, (iterator.call.parameters[1] as AST.Expression.ExpressionNumber).value)
+                } else {
+                    return fail("range may only contain two parameters.")
+                }
+            }
+            else -> {
+                return fail("you may only use range(...) calls in for loop iterators.")
+            }
+        }
         skip()
         val body = when (val body = parseBlock()) {
             is ParseResult.Success -> body.t
             is ParseResult.Failure -> return retype(body)
         }
-        return ParseResult.Success(AST.ForStatement(varName, iterator, body))
+        return ParseResult.Success(AST.ForStatement(varName, range, body))
     }
 
     private fun parseStatement(): ParseResult<AST.Statement> {
@@ -188,20 +229,28 @@ class Parser(val tokens: List<Token>) {
             else -> return fail("must be an identifier");
         }
         skip()
+        val params = mutableListOf<AST.FuncParam>()
+        while (hasNext() && currentToken() != Token.RightParens) {
+            val name = (consumeToken() as Token.Identifier).name
+            params.add(AST.FuncParam(name))
+            if (hasNext() && currentToken() == Token.Comma) {
+                skip()
+            }
+        }
         skip()
         skip()
         val body = when (val body = parseBlock()) {
             is ParseResult.Success -> body.t
             is ParseResult.Failure -> return retype(body)
         }
-        return ParseResult.Success(AST.FuncDef(name, listOf(), body))
+        return ParseResult.Success(AST.FuncDef(name, params, body))
     }
 
     fun parseExpression(): ParseResult<AST.Expression> {
-        when (val t = currentToken()) {
+        var result: ParseResult<AST.Expression> = when (val t = currentToken()) {
             is Token.Number -> {
                 skip()
-                return ParseResult.Success(AST.Expression.ExpressionNumber(t.n))
+                ParseResult.Success(AST.Expression.ExpressionNumber(t.n))
             }
             is Token.LeftParens -> {
                 skip()
@@ -210,7 +259,7 @@ class Parser(val tokens: List<Token>) {
                     is ParseResult.Failure -> return retype(inner)
                 }
                 skip()
-                return ParseResult.Success(AST.Expression.ExpressionParens(inner))
+                ParseResult.Success(AST.Expression.ExpressionParens(inner))
             }
             is Token.Identifier -> {
                 if (index + 1 < tokens.size && tokens[index + 1] == Token.LeftParens) {
@@ -218,16 +267,29 @@ class Parser(val tokens: List<Token>) {
                         is ParseResult.Success -> funcCall.t
                         is ParseResult.Failure -> return retype(funcCall)
                     }
-                    return ParseResult.Success(AST.Expression.ExpressionFuncCall(funcCall))
+                    ParseResult.Success(AST.Expression.ExpressionFuncCall(funcCall))
                 } else {
                     skip()
-                    return ParseResult.Success(AST.Expression.ExpressionIdentifier(t.name))
+                    ParseResult.Success(AST.Expression.ExpressionIdentifier(t.name))
                 }
+            }
+            is Token.StringToken -> {
+                skip()
+                ParseResult.Success(AST.Expression.ExpressionString(t.string))
             }
             else -> {
                 return fail("expr not implemented :(");
             }
         }
+        while (hasNext() && currentToken() is Token.ExpressionOperator) {
+            val operator = (consumeToken() as Token.ExpressionOperator).op
+            val expr = when (val expr = parseExpression()) {
+                is ParseResult.Success -> expr.t
+                is ParseResult.Failure -> return retype(expr)
+            }
+            result = ParseResult.Success(AST.Expression.ExpressionOperatorCall(operator, (result as ParseResult.Success).t, expr))
+        }
+        return result
     }
 
     private fun parseFuncCall(): ParseResult<AST.FuncCall> {
