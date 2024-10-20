@@ -51,5 +51,6 @@ export class VillagerService implements OnApplicationBootstrap {
         const formatted_timestamp = timestamp.toLocaleTimeString('en-US',{'hour12':false});
 
         console.log(`[${formatted_timestamp}] [Villager]: ${msg}]`)
+        console.log()
     }
 }
