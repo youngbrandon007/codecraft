@@ -55,20 +55,30 @@ export class CodeGateway implements OnGatewayConnection {
 
   @SubscribeMessage("run")
   async run() {
-    console.log("RUNNING")
+    this.log("Processing python...")
 
     const content = this.doc.getText().toString() as string;
 
+    await this.villagerService.purgeFunctionFolder();
+
     fs.promises.writeFile(FILE_PATH, content).then(() => {
-      const datapacker = exec('java -jar ../fox/out/artifacts/naq_jar/naq.jar data/run.py mc_server/world/datapacks/codecraft/data/codecraft/function')
+      const dataPacker = exec('java -jar ../fox/out/artifacts/naq_jar/naq.jar data/run.py mc_server/world/datapacks/codecraft/data/codecraft/function')
 
-      datapacker.stderr.on('data', (data) => {console.log(data)})
+      // dataPacker.stderr.on('data', (data) => {console.log(data)})
 
-      datapacker.on("close", (code) => {
-        console.log(`Datapacker closed with code ${code}`)
+      dataPacker.on("close", (code) => {
+        this.log(`DataPacker closed with code ${code}`)
 
         this.villagerService.reload();
       })
     })
+  }
+
+  private log(msg:string): void {
+    const timestamp = new Date();
+    const formatted_timestamp = timestamp.toLocaleTimeString('en-US',{'hour12':false});
+
+    console.log(`[${formatted_timestamp}] [Spider]: ${msg}`)
+    console.log() // for prettier log formatting
   }
 }

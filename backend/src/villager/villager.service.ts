@@ -1,6 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { exec, ChildProcess } from 'node:child_process';
 import * as console from 'node:console';
+import { emptyDir } from 'fs-extra';
 
 @Injectable()
 export class VillagerService implements OnApplicationBootstrap {
@@ -26,5 +27,19 @@ export class VillagerService implements OnApplicationBootstrap {
     this.server.stderr.on('data', (data) => {
       console.error(data);
     })
+  }
+
+  async purgeFunctionFolder() {
+    emptyDir('mc_server/world/datapacks/codecraft/data/codecraft/function', (err) => {
+      if (err) return this.log(err);
+      this.log("Successfully purged old functions.");
+    });
+  }
+
+  private log(msg:string): void {
+    const timestamp = new Date();
+    const formatted_timestamp = timestamp.toLocaleTimeString('en-US',{'hour12':false});
+
+    console.log(`[${formatted_timestamp}] [Villager]: ${msg}]`)
   }
 }
