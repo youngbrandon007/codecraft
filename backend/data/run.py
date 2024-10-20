@@ -1,3 +1,8 @@
 
+def test():
 
-def test()      1110=    r  pyint(x)
+    x = 20
+    y = 25
+    z = add(x, y)
+
+    print(z)

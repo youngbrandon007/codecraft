@@ -119,6 +119,20 @@ class Lexer {
 
     }
 
+    class StringLexer : SingleLexer {
+        override fun tryGetOneToken(source: String, index: Int): SingleLexResult? {
+            if (source[index] == '"') {
+                var endIndex = index + 1
+                while (endIndex < source.length && source[endIndex] != '"') {
+                    endIndex += 1
+                }
+                return SingleLexResult(Token.StringToken(source.substring(index + 1, endIndex)), endIndex + 1)
+            } else {
+                return null
+            }
+        }
+    }
+
     class CatchAllLexer : SingleLexer {
         override fun tryGetOneToken(source: String, index: Int): SingleLexResult {
             return SingleLexResult(Token.Unknown(source.substring(index, source.length)), source.length)
@@ -133,16 +147,19 @@ class Lexer {
         KeywordLexer("for", Token.ForKeyword),
         KeywordLexer("return", Token.ReturnKeyword),
         KeywordLexer("def", Token.DefKeyword),
+        KeywordLexer("and", Token.DefKeyword),
+        KeywordLexer("or", Token.DefKeyword),
+        KeywordLexer("not", Token.DefKeyword),
         SingleCharLexer('(', Token.LeftParens),
         SingleCharLexer(')', Token.RightParens),
         SingleCharLexer(':', Token.Colon),
         SingleCharLexer(',', Token.Comma),
-        SingleCharLexer('"', Token.Quote),
         OperatorLexer(),
         IdentifierLexer(),
         TabLexer(),
         NumberLexer(),
         SpaceLexer(),
+        StringLexer(),
         CatchAllLexer(),
     )
 
