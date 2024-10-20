@@ -1,1 +1,0 @@
-execute if function codecraft:885530ef-4d23-4f26-800d-062009302ad8 run return run function codecraft:b8ddc4ea-b1c8-4a9d-81a1-953e33b28381

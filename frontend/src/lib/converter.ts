@@ -1,9 +1,9 @@
-import { Buffer } from "buffer"
+import {fromUint8Array, toUint8Array} from "js-base64";
 
 export function decode(b64: string) {
-  return new Uint8Array(Buffer.from(b64, 'base64'))
+  return toUint8Array(b64)
 }
 
 export function encode(uint8array: Uint8Array) {
-  return Buffer.from(uint8array).toString('base64');
+  return fromUint8Array(uint8array)
 }

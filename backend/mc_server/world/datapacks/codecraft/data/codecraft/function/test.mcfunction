@@ -1,1 +1,1 @@
-function codecraft:c8531723-91e1-4018-adf8-fb5c21ba101f
+execute store result storage codecraft:var x int 1 run function codecraft:af5b007f-1390-4df9-a50b-68827edc5ad7

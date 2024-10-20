@@ -40,7 +40,15 @@ onMounted( () => {
       automaticLayout: true,
       value: '',
       language: 'python',
-      theme: 'vs-dark'
+      theme: 'vs-dark',
+      autoClosingBrackets: "never",
+      autoIndent: "none",
+      autoClosingDelete: "never",
+      autoSurround: "never",
+      autoClosingComments: "never",
+      autoClosingOvertype: "never",
+      autoClosingQuotes: "never",
+      quickSuggestions: false,
     })
 
     const text = doc.getText()

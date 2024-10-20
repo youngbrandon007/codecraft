@@ -1,3 +1,6 @@
+import generator.Generator
+import language.Lexer
+import language.Parser
 import java.io.File
 import java.nio.file.Path
 

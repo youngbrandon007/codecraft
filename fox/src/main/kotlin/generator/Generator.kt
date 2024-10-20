@@ -45,6 +45,12 @@ object Generator {
             functions.addAll(lineProgram.functions)
         }
 
+        if(functions.none { it.name == "tick" }){
+            functions.add(MC.Function(
+                name = "tick"
+            ))
+        }
+
         val loadFunction = MC.Function(
             name = MC.loadFunctionName,
             contents = contents
@@ -102,6 +108,7 @@ object Generator {
             is AST.Statement.StatementForStatement -> TODO()
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
             is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
+            is AST.Statement.StatementFuncCall -> TODO()
         }
     }
 
@@ -214,14 +221,31 @@ object Generator {
     fun generateExpression(expression: AST.Expression): MC.Program {
         return when(expression) {
             is AST.Expression.ExpressionNumber -> generateExpressionNumber(expression)
+            is AST.Expression.ExpressionFuncCall -> TODO() // generateExpressionFunctionCall(expression)
+            is AST.Expression.ExpressionIdentifier -> TODO()
+            is AST.Expression.ExpressionParens -> generateExpressionParens(expression)
+            is AST.Expression.ExpressionString -> TODO()
         }
     }
 
     fun generateExpressionNumber(expressionNumber: AST.Expression.ExpressionNumber): MC.Program {
-        val returnCmd = "return " + expressionNumber.value.toString()
+        val returnCmd = "return ${expressionNumber.value}"
 
         return MC.Program(
             contents = listOf(returnCmd)
+        )
+    }
+
+    fun generateExpressionParens(parenExpression: AST.Expression.ExpressionParens): MC.Program {
+        return generateExpression(parenExpression.inner)
+    }
+
+     // Waiting for Erik to add Parameters
+    fun generateExpressionFunctionCall(functionCall: AST.Expression.ExpressionFuncCall): MC.Program {
+        val funcCallCmd = "return run ${MC.createFunctionCall(functionCall.call.funcName)}"
+
+        return MC.Program(
+            contents = listOf(funcCallCmd)
         )
     }
 }
