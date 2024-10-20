@@ -1,6 +1,3 @@
 
 
-def test():
-    x = 20
-    y = x
-    print(x)
+def test()      1110=    r  pyint(x)
