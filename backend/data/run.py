@@ -1,4 +1,6 @@
 
 
 def test():
-    x = (((65)))
+    x = 20
+    y = x
+    print(x)
