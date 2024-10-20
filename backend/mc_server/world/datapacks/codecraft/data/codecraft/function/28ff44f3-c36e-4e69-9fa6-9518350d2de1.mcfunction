@@ -1,0 +1,1 @@
+execute store result storage codecraft:var val int 1 run function codecraft:b8ffecef-446e-409d-8c50-1a9c24b41e80

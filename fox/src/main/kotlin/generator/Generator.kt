@@ -1,7 +1,12 @@
 package generator
 
 import language.AST
+<<<<<<< Updated upstream
+=======
+import java.math.BigInteger
+>>>>>>> Stashed changes
 import java.util.UUID
+import kotlin.math.exp
 
 typealias MutableMCCommands = MutableList<String>
 typealias MCCommands = List<String>
@@ -115,11 +120,16 @@ object Generator {
     fun generateStatment(statement: AST.Statement): MC.Program {
         return when (statement) {
             is AST.Statement.StatementAssignment -> generateStatmentAssignment(statement)
-            is AST.Statement.StatementForStatement -> TODO()
+            is AST.Statement.StatementForStatement -> generateStatementForStatement(statement)
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
+<<<<<<< Updated upstream
             is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
             is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment)
             is AST.Statement.StatementReturn -> TODO()
+=======
+            is AST.Statement.StatementWhileStatement -> generateStatementWhileStatement(statement)
+            is AST.Statement.StatementFuncCall -> generateExpressionFunctionCall(statement.assignment, false)
+>>>>>>> Stashed changes
         }
     }
 
@@ -143,7 +153,45 @@ object Generator {
         )
     }
 
-    fun generateStatmentWhileStatement(statement: AST.Statement.StatementWhileStatement): MC.Program {
+    fun generateStatementForStatement(forStatement: AST.Statement.StatementForStatement): MC.Program {
+        return generateBlock(
+            AST.Block(
+                listOf(
+                    AST.Statement.StatementAssignment(
+                        AST.Assignment(
+                            name = forStatement.forStatement.varName,
+                            expressions = AST.Expression.ExpressionNumber(
+                                forStatement.forStatement.range.first
+                            )
+                        )
+                    ),
+                    AST.Statement.StatementWhileStatement(
+                        whileStatement = AST.WhileStatement(
+                            condition = AST.Expression.ExpressionOperatorCall(
+                                first = AST.Expression.ExpressionIdentifier(name = forStatement.forStatement.varName),
+                                operator = "<",
+                                second = AST.Expression.ExpressionNumber(forStatement.forStatement.range.second)
+                            ),
+                            body = AST.Block(
+                                statements = forStatement.forStatement.body.statements + listOf(AST.Statement.StatementAssignment(
+                                    assignment = AST.Assignment(
+                                        name = forStatement.forStatement.varName,
+                                        expressions = AST.Expression.ExpressionOperatorCall(
+                                            first = AST.Expression.ExpressionIdentifier(name = forStatement.forStatement.varName),
+                                            operator = "+",
+                                            second = AST.Expression.ExpressionNumber(value = BigInteger.ONE)
+                                        )
+                                    )
+                                ))
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    fun generateStatementWhileStatement(statement: AST.Statement.StatementWhileStatement): MC.Program {
         val whileBodyName = MC.createRandomId()
         val whileBodyCmd = MC.createFunctionCall(whileBodyName)
 
@@ -176,7 +224,7 @@ object Generator {
         val ifFunctionName = MC.createRandomId()
         val ifFunctionCmd = MC.createFunctionCall(ifFunctionName)
 
-        val conditionList = listOf(Pair(statement.ifStatement.condition, statement.ifStatement.ifBody))
+        val conditionList = listOf(Pair(statement.ifStatement.condition, statement.ifStatement.ifBody))+statement.ifStatement.elifs
 
         val functionList: MutableList<MC.Function> = mutableListOf()
         val commands: MutableMCCommands = mutableListOf()
@@ -241,11 +289,15 @@ object Generator {
     fun generateExpression(expression: AST.Expression): MC.Program {
         return when (expression) {
             is AST.Expression.ExpressionNumber -> generateExpressionNumber(expression)
-            is AST.Expression.ExpressionFuncCall -> generateExpressionFunctionCall(expression.call)
+            is AST.Expression.ExpressionFuncCall -> generateExpressionFunctionCall(expression.call, true)
             is AST.Expression.ExpressionIdentifier -> generateExpressionIdentifier(expression)
             is AST.Expression.ExpressionParens -> generateExpressionParens(expression)
             is AST.Expression.ExpressionString -> TODO()
+<<<<<<< Updated upstream
             is AST.Expression.ExpressionOperatorCall -> TODO()
+=======
+            is AST.Expression.ExpressionOperatorCall -> generateExpressionOperatorCall(expression) //!@#$%^&*==<>
+>>>>>>> Stashed changes
         }
     }
 
@@ -270,7 +322,7 @@ object Generator {
     }
 
     // Waiting for Erik to add Parameters
-    fun generateExpressionFunctionCall(functionCall: AST.FuncCall): MC.Program {
+    fun generateExpressionFunctionCall(functionCall: AST.FuncCall, isExpression: Boolean): MC.Program {
         val funcCallParamUuid = MC.createRandomId()
 
         val functionList: MutableList<MC.Function> = mutableListOf()
@@ -290,7 +342,7 @@ object Generator {
 
             commands.add(paramCmd)
         }
-        val funcCallCmd = "return run ${MC.createFunctionCall(functionCall.funcName)} with storage codecraft:${funcCallParamUuid}"
+        val funcCallCmd = (when(isExpression) { true -> "return run "; false -> "" }) + "${MC.createFunctionCall(functionCall.funcName)} with storage codecraft:${funcCallParamUuid}"
 
         commands.add(funcCallCmd)
 
@@ -298,6 +350,26 @@ object Generator {
             contents = commands,
             functions = functionList
         )
+    }
+
+    fun generateExpressionOperatorCall(expressionOperatorCall: AST.Expression.ExpressionOperatorCall): MC.Program {
+        val params = listOf(expressionOperatorCall.first, expressionOperatorCall.second)
+
+        return generateExpressionFunctionCall(when(expressionOperatorCall.operator) {
+            "+" -> AST.FuncCall("add", params)
+            "-" -> AST.FuncCall("sub", params)
+            "*" -> AST.FuncCall("mult", params)
+            "/" -> AST.FuncCall("div", params)
+            "%" -> AST.FuncCall("mod", params)
+            ">" -> AST.FuncCall("greater_than", params)
+            ">=" -> AST.FuncCall("greater_than_equal", params)
+            "<" -> AST.FuncCall("less_than", params)
+            "<=" -> AST.FuncCall("less_than_equal", params)
+            "==" -> AST.FuncCall("equal", params)
+            "&&" -> AST.FuncCall("and", params)
+            "||" -> AST.FuncCall("or", params)
+            else -> TODO()
+        }, true)
     }
 }
 

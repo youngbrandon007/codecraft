@@ -1,0 +1,1 @@
+return run data get storage codecraft:var sy 1.0
