@@ -75,11 +75,19 @@ object Generator {
     }
 
     fun generateProgramFuncDef(programFuncDef: AST.ProgramElement.ProgramFuncDef): MC.Program {
+        val commands: MutableMCCommands = mutableListOf()
+
+        programFuncDef.funcDef.parameters.forEachIndexed { i, param ->
+            val paramSetCmd = "\$data modify storage codecraft:var ${param.name} set value \$(p${i})"
+
+            commands.add(paramSetCmd)
+        }
+
         val blockDefinition = generateBlock(programFuncDef.funcDef.body)
 
         val newFunction = MC.Function(
             name = programFuncDef.funcDef.name,
-            contents = blockDefinition.contents
+            contents = commands + blockDefinition.contents
         )
 
         return MC.Program(

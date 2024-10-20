@@ -1,6 +1,5 @@
 
 
-def test():
-    x = 20
-    y = x
+def p(x):
     print(x)
+
