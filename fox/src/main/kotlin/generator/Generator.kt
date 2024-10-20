@@ -101,7 +101,7 @@ object Generator {
             is AST.Statement.StatementAssignment -> generateStatmentAssignment(statement)
             is AST.Statement.StatementForStatement -> TODO()
             is AST.Statement.StatementIfStatement -> generateStatmentIfStatement(statement)
-            is AST.Statement.StatementWhileStatement -> TODO()
+            is AST.Statement.StatementWhileStatement -> generateStatmentWhileStatement(statement)
         }
     }
 
@@ -112,14 +112,38 @@ object Generator {
 
         val expressionProgram = generateExpression(statementAssignment.assignment.expressions)
 
-        val expressionFunction = MC.Function(
-            name = functionName,
-            contents = expressionProgram.contents,
+        val expressionFunction = MC.Function( name = functionName, contents = expressionProgram.contents,
         )
 
         return MC.Program(
             contents = listOf(cmd),
             functions = listOf(expressionFunction) + expressionProgram.functions
+        )
+    }
+
+    fun generateStatmentWhileStatement(statement: AST.Statement.StatementWhileStatement): MC.Program {
+        val whileBodyName = MC.createRandomId()
+        val whileBodyCmd = MC.createFunctionCall(whileBodyName)
+
+        val whileConditionName = MC.createRandomId()
+        val whileConditionExpression = statement.whileStatement.condition
+        val whileCondition = generateExpression(whileConditionExpression)
+        val whileConditionFunction = MC.Function(
+            name = whileConditionName,
+            contents = whileCondition.contents
+        )
+
+        val cmdCheckCondition = "execute unless ${MC.createFunctionCall(whileConditionName)} run return 1"
+
+        val whileBody = generateBlock(statement.whileStatement.body)
+        val whileBodyFunction = MC.Function(
+            name = whileBodyName,
+            contents = listOf(cmdCheckCondition) + whileBody.contents + listOf(whileBodyCmd)
+        )
+
+        return MC.Program(
+            functions = whileCondition.functions + whileBody.functions + listOf(whileConditionFunction, whileBodyFunction),
+            contents = listOf(whileBodyCmd)
         )
     }
 

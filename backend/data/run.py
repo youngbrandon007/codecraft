@@ -1,3 +1,5 @@
+
+
 def test():
-    if 1:
-        x = 26
+    while 0:
+        x = 5
