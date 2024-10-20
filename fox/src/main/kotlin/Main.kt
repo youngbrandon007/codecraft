@@ -6,16 +6,10 @@ fun main() {
     val source =
         """
             def setup():
-                x = 2
-                y = 10
-                if 10:
-                    z = 15
-                for i in 10:
-                    while 10:
-                        w = 100
-            def loop():
-                z = 10
-                testing = 200
+                x = f(x, y)
+                z = g(x, f(g(x, x, x)), h())
+                if g(((x)), f(g(x, x, x)), h()):
+                    z = (((g(x, f(g(x, x, x)), h()))))
         """.trimIndent()
     val lexer = Lexer(source)
     val tokens = lexer.getAllTokens()

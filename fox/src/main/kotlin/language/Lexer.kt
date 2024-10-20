@@ -137,6 +137,7 @@ class Lexer {
         SingleCharLexer(')', Token.RightParens),
         SingleCharLexer(':', Token.Colon),
         SingleCharLexer(',', Token.Comma),
+        SingleCharLexer('"', Token.Quote),
         OperatorLexer(),
         IdentifierLexer(),
         TabLexer(),

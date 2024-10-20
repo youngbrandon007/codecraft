@@ -158,6 +158,11 @@ class Parser(val tokens: List<Token>) {
                         }
                     }
                     return ParseResult.Success(AST.Statement.StatementAssignment(AST.Assignment(name, expr)))
+                } else if (index + 1 < tokens.size && tokens[index] is Token.Identifier && tokens[index + 1] == Token.LeftParens) {
+                    return when (val fc = parseFuncCall()) {
+                        is ParseResult.Success -> ParseResult.Success(AST.Statement.StatementFuncCall(fc.t))
+                        is ParseResult.Failure -> retype(fc)
+                    }
                 } else {
                     return fail("this statement is not implemented :(");
                 }
@@ -197,10 +202,50 @@ class Parser(val tokens: List<Token>) {
             is Token.Number -> {
                 skip()
                 return ParseResult.Success(AST.Expression.ExpressionNumber(t.n))
-            } else -> {
-                return fail("non-int expr not implemented :(");
+            }
+            is Token.LeftParens -> {
+                skip()
+                val inner = when (val inner = parseExpression()) {
+                    is ParseResult.Success -> inner.t
+                    is ParseResult.Failure -> return retype(inner)
+                }
+                skip()
+                return ParseResult.Success(AST.Expression.ExpressionParens(inner))
+            }
+            is Token.Identifier -> {
+                if (index + 1 < tokens.size && tokens[index + 1] == Token.LeftParens) {
+                    val funcCall = when (val funcCall = parseFuncCall()) {
+                        is ParseResult.Success -> funcCall.t
+                        is ParseResult.Failure -> return retype(funcCall)
+                    }
+                    return ParseResult.Success(AST.Expression.ExpressionFuncCall(funcCall))
+                } else {
+                    skip()
+                    return ParseResult.Success(AST.Expression.ExpressionIdentifier(t.name))
+                }
+            }
+            else -> {
+                return fail("expr not implemented :(");
             }
         }
+    }
+
+    private fun parseFuncCall(): ParseResult<AST.FuncCall> {
+        val name = (consumeToken() as Token.Identifier).name
+        skip()
+        val exprs = mutableListOf<AST.Expression>()
+        while (hasNext() && currentToken() !is Token.RightParens) {
+            val param = when (val param = parseExpression()) {
+                is ParseResult.Success -> param.t
+                is ParseResult.Failure -> return retype(param)
+            }
+            exprs.add(param)
+            if (hasNext() && currentToken() is Token.Comma) {
+                skip()
+            }
+        }
+        skip()
+        return ParseResult.Success(AST.FuncCall(name, exprs))
     }
 
     fun parseBlock(): ParseResult<AST.Block> {
